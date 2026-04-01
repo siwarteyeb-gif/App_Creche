@@ -75,10 +75,10 @@ public class ParentService implements InterfaceParentService{
 
     public Map<String, String> login(String email, String password) {
         Parent parent = parentRepository.findByEmail(email)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Email ou mot de passe incorrect"));
+                .orElseThrow(() -> new BadRequestException("Email ou mot de passe incorrect"));
 
         if (!passwordEncoder.matches(password, parent.getPassword())) {
-            throw new BadRequestException("Email ou mot de passe incorrect");
+            throw new BadRequestException("mot de passe incorrect");
         }
 
         String token = jwtService.generateToken(parent);

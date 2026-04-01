@@ -15,6 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -33,8 +34,7 @@ class AdminServiceTest {
     @Mock
     private ActivitesRepository activitesRepository;
 
-    @Mock
-    private PasswordEncoder passwordEncoder;
+
 
     @InjectMocks
     private AdminService adminService;
@@ -47,7 +47,6 @@ class AdminServiceTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
 
-        // Parent
         parent = new Parent();
         parent.setId(1L);
         parent.setNom("Ali");
@@ -75,15 +74,23 @@ class AdminServiceTest {
 
     @Test
     void testAjouterBebe() {
+        parent.setBebes(new ArrayList<>());
+
         when(parentRepository.findById(1L)).thenReturn(Optional.of(parent));
-        when(bebeRepository.save(any(Bebe.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(bebeRepository.save(any(Bebe.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
         Bebe result = adminService.ajouterBebe(1L, "Bebe1", "Prenom1", LocalDate.now());
 
+        assertNotNull(result);
         assertEquals("Bebe1", result.getNom());
+        assertEquals("Prenom1", result.getPrenom());
         assertEquals(parent, result.getParent());
-    }
+        assertNotNull(result.getCreatedAt());
+        assertNotNull(result.getModifiedAt());
 
+        verify(bebeRepository, times(1)).save(any(Bebe.class));
+    }
     @Test
     void testAjouterActivite() {
         when(bebeRepository.findById(1L)).thenReturn(Optional.of(bebe));

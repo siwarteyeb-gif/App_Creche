@@ -54,11 +54,7 @@ public class AdminService implements InterfaceAdminService{
     }
 
     // 4️⃣ activités d’un bébé
-    public List<Activitebebe> getActivitesOfBebe(Long idBebe) {
-        Bebe bebe = bebeRepository.findById(idBebe)
-                .orElseThrow(() -> new BadRequestException("Bébé introuvable"));
-        return bebe.getActivites();
-    }
+
 
     public void deleteParent(Long idParent) {
         Parent parent = parentRepository.findById(idParent)
@@ -83,33 +79,25 @@ public class AdminService implements InterfaceAdminService{
     }
     public Bebe ajouterBebe(Long parentId, String nom, String prenom, LocalDate dateNais) {
         Parent parent = parentRepository.findById(parentId)
-                .orElseThrow(() ->new BadRequestException("Parent introuvable"));
+                .orElseThrow(() -> new BadRequestException("Parent introuvable"));
 
+        boolean existe = parent.getBebes().stream()
+                .anyMatch(b -> b.getNom().equalsIgnoreCase(nom));
+        if (existe) {
+            throw new BadRequestException("Le parent a déjà un bébé avec ce nom");
+        }
         Bebe bebe = new Bebe();
         bebe.setNom(nom);
         bebe.setPrenom(prenom);
         bebe.setDateNais(dateNais);
         bebe.setParent(parent);
+
         LocalDateTime now = LocalDateTime.now();
         bebe.setCreatedAt(now);
         bebe.setModifiedAt(now);
         return bebeRepository.save(bebe);
     }
-    public Parent inscrireadmin(String nom, String prenom, String email, String telephone, String password) {
 
-        if (parentRepository.findByEmail(email).isPresent()) {
-            throw new BadRequestException("Un compte avec cet email existe déjà !"); }
-        Parent parent = new Parent();
-        parent.setNom(nom);
-        parent.setPrenom(prenom);
-        parent.setEmail(email);
-        parent.setTelephone(telephone);
-        parent.setPassword(passwordEncoder.encode(password));
-        parent.setModifiedAt(LocalDateTime.now());
-        parent.setCreatedAt(LocalDateTime.now());
-        parent.setRole("ROLE_ADMIN");
-        return parentRepository.save(parent);
-    }
     public Parent updateParent(Long id,String nom, String prenom,String email, String telephone,String password,String role) {
         Parent parent = parentRepository.findById(id).orElseThrow(() ->new BadRequestException ("Parent introuvable"));
         Optional<Parent> parentByEmail = parentRepository.findByEmail(email);
@@ -185,19 +173,7 @@ public class AdminService implements InterfaceAdminService{
         ));
         activitesRepository.delete(activite);
     }
-    public List<Parent> getAllAdmins() {
-        return parentRepository.findByRole("ROLE_ADMIN");
-    }
-    public void deleteAdmin(Long adminId, String emailFromToken) {
 
-        Parent adminToDelete = parentRepository.findById(adminId)
-                .orElseThrow(() ->new BadRequestException("Admin introuvable"
-                ));
-        if (adminToDelete.getEmail().equals(emailFromToken)) {
-            throw new BadRequestException("impossible de supprimer votre propre compte");}
-
-        parentRepository.delete(adminToDelete);
-    }
     public List<Activitebebe> ActivitesAujourdhuiAdmin(Long idBebe) {
         bebeRepository.findById(idBebe)
                 .orElseThrow(() ->new BadRequestException("Bébé introuvable"
@@ -218,6 +194,23 @@ public class AdminService implements InterfaceAdminService{
     public Bebe getBebeById(Long id) {
         return bebeRepository.findById(id)
                 .orElseThrow(() -> new BadRequestException("Bébé introuvable"));
+    }
+    public Activitebebe getActiviteById(Long id) {
+        return activitesRepository.findById(id)
+                .orElseThrow(() -> new BadRequestException("Activité non trouvée"));
+    }
+    public Parent getProfilAdmin(String email) {
+        Optional<Parent> adminOpt = parentRepository.findByEmail(email);
+
+        if (adminOpt.isEmpty()) {
+            throw new BadRequestException("Admin non trouvé");
+        }
+        Parent admin = adminOpt.get();
+        if (!"ROLE_ADMIN".equals(admin.getRole())) {
+            throw new BadRequestException("Accès refusé : pas admin");
+        }
+
+        return admin;
     }
 
 

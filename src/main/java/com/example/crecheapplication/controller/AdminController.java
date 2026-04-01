@@ -37,28 +37,13 @@ public class AdminController {
 
         String token = authHeader.substring(7);
         String email = jwtService.extractEmail(token);
-        Parent parent = parentService.afficherParentParEmail(email);
+        Parent admin = parentService.afficherParentParEmail(email);
 
-        if (!"ROLE_ADMIN".equals(parent.getRole())) {
+        if (!"ROLE_ADMIN".equals(admin.getRole())) {
             throw new RuntimeException("Accès refusé pas admin");
         }
     }
-    @PostMapping("/inscrire")
-    public Parent inscrireAdmin(
-            @RequestHeader("Authorization") String authHeader,
-            @RequestBody Parent parent
-    ) {
-        checkAdmin(authHeader);
 
-        Parent admin = adminService.inscrireadmin(
-                parent.getNom(),
-                parent.getPrenom(),
-                parent.getEmail(),
-                parent.getTelephone(),
-                parent.getPassword()
-        );
-        return admin;
-    }
 
     @GetMapping("/parents")
     public List<Parent> getAllParents(@RequestHeader("Authorization") String authHeader) {
@@ -85,13 +70,6 @@ public class AdminController {
         return adminService.getParentOfBebe(id);
     }
 
-    // 🔹 activités bébé
-    @GetMapping("/bebe/{id}/activites")
-    public List<Activitebebe> getActivitesOfBebe(@PathVariable Long id,
-                                                 @RequestHeader("Authorization") String authHeader) {
-        checkAdmin(authHeader);
-        return adminService.getActivitesOfBebe(id);
-    }
 
 
     // 🔹 supprimer parent
@@ -182,24 +160,7 @@ public class AdminController {
         adminService.supprimerActivite(id);
         return "Activité supprimée avec succès";
     }
-    @GetMapping("/admins")
-    public List<Parent> getAllAdmins(
-            @RequestHeader("Authorization") String authHeader) {
 
-        checkAdmin(authHeader);
-        return adminService.getAllAdmins();
-    }
-    @DeleteMapping("/admin/{id}")
-    public String deleteAdmin(@PathVariable Long id,@RequestHeader("Authorization") String authHeader) {
-        checkAdmin(authHeader);
-
-        String token = authHeader.substring(7);
-        String email = jwtService.extractEmail(token);
-
-        adminService.deleteAdmin(id, email);
-
-        return "Admin supprimé avec succès";
-    }
     @GetMapping("/parent/{id}")
     public Parent getParentById(@PathVariable Long id, @RequestHeader("Authorization") String authHeader) {
         checkAdmin(authHeader);
@@ -214,5 +175,16 @@ public class AdminController {
     public Bebe getBebeById(@PathVariable Long id, @RequestHeader("Authorization") String authHeader) {
         checkAdmin(authHeader);
         return adminService.getBebeById(id);
+    }
+    @GetMapping("/activites/{id}")
+    public Activitebebe getActiviteById(@PathVariable Long id) {
+        return adminService.getActiviteById(id);
+    }
+    @GetMapping("/profil")
+    public Parent getProfilAdmin(@RequestHeader("Authorization") String authHeader) {
+        checkAdmin(authHeader);
+        String token = authHeader.substring(7);
+        String email = jwtService.extractEmail(token);
+        return adminService.getProfilAdmin(email);
     }
 }

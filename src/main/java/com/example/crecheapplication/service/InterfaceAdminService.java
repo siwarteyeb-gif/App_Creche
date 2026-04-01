@@ -15,11 +15,6 @@ public interface InterfaceAdminService {
      */
     List<Parent> getAllParents();
 
-    /**
-     * Récupère tous les admins ayant le rôle ROLE_ADMIN.
-     * @return Liste d'admins
-     */
-    List<Parent> getAllAdmins();
 
     /**
      * Crée un nouveau parent avec le rôle ROLE_PARENT.
@@ -50,25 +45,6 @@ public interface InterfaceAdminService {
      * @param idParent ID du parent
      */
     void deleteParent(Long idParent);
-
-    /**
-     * Supprime un admin par son ID.
-     * @param adminId ID de l'admin à supprimer
-     * @param emailFromToken Email de l'admin connecté (pour éviter la suppression de soi-même)
-     */
-    void deleteAdmin(Long adminId, String emailFromToken);
-
-    /**
-     * Crée un nouvel admin avec le rôle ROLE_ADMIN.
-     * @param nom Nom de l'admin
-     * @param prenom Prénom de l'admin
-     * @param email Email de l'admin
-     * @param telephone Téléphone de l'admin
-     * @param password Mot de passe de l'admin (sera encodé)
-     * @return Admin créé
-     */
-    Parent inscrireadmin(String nom, String prenom, String email, String telephone, String password);
-
     /**
      * Récupère tous les bébés.
      * @return Liste de bébés
@@ -99,18 +75,8 @@ public interface InterfaceAdminService {
      */
     void deleteBebe(Long id);
 
-    /**
-     * Récupère toutes les activités.
-     * @return Liste d'activités
-     */
-    List<Activitebebe> getAllActivites();
 
-    /**
-     * Récupère toutes les activités d'un bébé.
-     * @param idBebe ID du bébé
-     * @return Liste d'activités
-     */
-    List<Activitebebe> getActivitesOfBebe(Long idBebe);
+
 
 
     /**
